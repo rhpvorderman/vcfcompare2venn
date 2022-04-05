@@ -17,9 +17,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+import argparse
 import os
-import sys
-from typing import List, TextIO
+from typing import TextIO
 
 from matplotlib import pyplot as plt
 import matplotlib_venn
@@ -77,14 +77,29 @@ def subsets_from_vcf_compare_file(file: TextIO):
     return subsets, labels
 
 
+def argument_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("input", metavar="INPUT",
+                        help="A vcf-compare output file")
+    parser.add_argument("output", metavar="PLOT", nargs="?",
+                        help="Save location of the plot. If not given shows "
+                             "the interactive matplotlib interface.")
+    parser.add_argument("--title", "-t",
+                        help="Title for the plot.")
+    return parser
+
+
 def main():
-    with open(sys.argv[1]) as f:
+    args = argument_parser().parse_args()
+    with open(args.input) as f:
         subsets, lables = subsets_from_vcf_compare_file(f)
-    matplotlib_venn.venn3(subsets=subsets, set_labels=lables)
-    if len(sys.argv) == 2:
+    matplotlib_venn.venn3(subsets=subsets, set_labels=lables,)
+    plt.title(args.title)
+    if not args.output:
         plt.show()
     else:
-        plt.savefig(sys.argv[2])
+        plt.savefig(args.output)
+
 
 if __name__ == "__main__":
     main()
